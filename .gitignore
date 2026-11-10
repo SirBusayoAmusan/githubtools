@@ -1,0 +1,4 @@
+# Lead lists hold personal data: never commit them
+leads*.csv
+enriched*.csv
+*.leads.csv
