@@ -18,8 +18,10 @@ mkdir -p "$HOME/.claude/skills"
 files=(.claude/hooks/session-start.sh lantern/lantern-install.mjs lantern/skills-manifest.json)
 while IFS= read -r f; do files+=("$f"); done < <(find lantern/own-skills -type f | sort)
 
-if ! sha256sum --check --status "$hashes" 2>/dev/null; then
+# Hash the whole file list (names and contents) so added or removed files also trigger an install
+current="$(sha256sum "${files[@]}")"
+if [ "$(cat "$hashes" 2>/dev/null || true)" != "$current" ]; then
   rm -f "$hashes"
   node lantern/lantern-install.mjs --skills-only
-  sha256sum "${files[@]}" > "$hashes" || rm -f "$hashes"
+  printf '%s\n' "$current" > "$hashes"
 fi
